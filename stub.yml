@@ -1,0 +1,6 @@
+---
+properties:
+  locker:
+    password: abcd
+    ssl_cert: (( vault "secret/locker-ssl:certificate" ))
+    ssl_key: ((vault "secret/locker-ssl:key" ))

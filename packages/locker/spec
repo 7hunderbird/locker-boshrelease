@@ -1,0 +1,5 @@
+---
+name: locker
+dependencies: []
+files:
+- locker/locker-linux-amd64

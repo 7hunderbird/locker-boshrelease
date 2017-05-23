@@ -1,0 +1,21 @@
+compilation:
+  workers: 5
+  reuse_compilation_vms: true
+  vm_type: locker
+  network: locker
+
+vm_types:
+- name: locker
+  cloud_properties:
+    name: random
+
+networks:
+  - name: locker
+    subnets:
+      - cloud_properties:
+          name: random
+        range: 10.244.60.0/24
+        reserved:
+          - 10.244.60.1
+        static:
+          - 10.244.60.2 - 10.244.60.10

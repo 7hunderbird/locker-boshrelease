@@ -1,0 +1,5 @@
+check process locker
+  with pidfile /var/vcap/sys/run/locker/locker.pid
+  start program "/var/vcap/jobs/locker/bin/monit_debugger locker_ctl '/var/vcap/jobs/locker/bin/ctl start'"
+  stop program "/var/vcap/jobs/locker/bin/monit_debugger locker_ctl '/var/vcap/jobs/locker/bin/ctl stop'"
+  group vcap

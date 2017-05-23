@@ -1,0 +1,27 @@
+---
+name: locker
+packages:
+- locker
+templates:
+  bin/ctl: bin/ctl
+  bin/monit_debugger: bin/monit_debugger
+  config/ssl.crt.erb: config/ssl.crt
+  config/ssl.key.erb: config/ssl.key
+  data/properties.sh.erb: data/properties.sh
+  helpers/ctl_setup.sh: helpers/ctl_setup.sh
+  helpers/ctl_utils.sh: helpers/ctl_utils.sh
+
+properties:
+  locker.port:
+    default: 8910
+    description: Port that locker will listen on.
+
+  locker.user:
+    description: Specifies the HTTP basic auth user for locker. if not specified, auth is disabled.
+  locker.password:
+    description: Specifies the HTTP basic auth passwordfor locker. if not specified, auth is disabled.
+
+  locker.ssl_cert:
+    description: PEM-encoded SSL certificate that locker will use for its HTTP server
+  locker.ssl_key:
+    description: PEM-encoded private key for the locker SSL certificate
