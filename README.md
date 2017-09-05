@@ -11,6 +11,7 @@ This project is similar to the [pool-resource](https://github.com/concourse/pool
    it isn't anticipated to have an enormous traffic load.
 2) Pools + lock-names do not need to be pre-defined in order to be used
 
+
 # How do I use it?
 
 1) Deploy `locker` along side your Concourse database node via the [locker-boshrelease](https://github.com/cloudfoundry-community/locker-boshrelease)
@@ -19,30 +20,42 @@ This project is similar to the [pool-resource](https://github.com/concourse/pool
 
 # BOSH Release for locker
 
-To use this bosh release, first upload it to your bosh:
+To use this bosh release, deploy the manifest:
 
 ```
-bosh target BOSH_HOST
+export BOSH_ENVIRONMENT=<alias>
+export BOSH_DEPLOYMENT=locker
+
 git clone https://github.com/cloudfoundry-community/locker-boshrelease.git
 cd locker-boshrelease
-bosh upload release releases/locker/locker-1.yml
+
+# pick a static IP which will be included in the TLS certificates
+locker_host=PICK.AN.IP.ADDRESS
+
+bosh deploy manifests/locker.yml \
+  -v "locker-static-ip=$locker_host" \
+  --vars-store=tmp/creds.yml
 ```
 
-For [bosh-lite](https://github.com/cloudfoundry/bosh-lite), you can quickly create a deployment manifest & deploy a cluster. Note that this requires that you have installed [spruce](https://github.com/geofffranks/spruce).
+If your BOSH does have Credhub/Config Server, then you do not require the  ` --vars-store` flag. Credhub will manage the generation of passwords and certificates at deploy time. Use the `credhub` CLI to get the credentials.
+
+This deployment will provision a dedicated VM running locker.
+
+To interact with your Locker API:
 
 ```
-templates/make_manifest warden
-bosh -n deploy
+locker_password=$(bosh int tmp/creds.yml --path /locker-password)
+locker_ca="$(bosh int tmp/creds.yml --path /locker-tls/ca)"
+curl --cacert <(echo "$locker_ca") -u locker:$locker_password https://${locker_host:?required}:8910/locks
 ```
 
-The templates located in `templates/` are there for posterity, to deploy manually to a bosh-lite for testing.
-They also require cloud config (warden sample is in `templates/`).
+Initially this will return `{}`. As you claim locks, it will return the status of all locks.
 
-However, in practice, this job should probably be colocated on the database node of your concourse
-deployment. Ensure that the node that `locker` is being installed on has both a static IP, and persistent
-disk. THe disk is used to persist lock data across restarts/stemcell upgrades. The static IP is required
-to provide the `locker-resource` in Concourse with a reliable URL to contact. Lastly, ensure that the username,
-password, and SSL cert/key attributes are all set when running in production.
+### Concourse integration
+
+The original use case for `locker` was to be integrated with [Concourse](https://concourse.ci).
+
+For this scenario, this `locker` job should probably be colocated on the database node of your concourse deployment. Ensure that the node that `locker` is being installed on has both a static IP, and persistent disk. The disk is used to persist lock data across restarts/stemcell upgrades. The static IP is required to provide the `locker-resource` in Concourse with a reliable URL to contact. Lastly, ensure that the username, password, and SSL cert/key attributes are all set when running in production.
 
 ```
 instance_groups:
