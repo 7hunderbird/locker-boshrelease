@@ -3,18 +3,39 @@ meta:
   name: locker
   target: sw
   url:     https://ci.starkandwayne.com
+
+  bosh-lite:
+    target: https://10.58.111.49:25555
+    username: (( vault "secret/bosh-lites/lite49/users/admin:username" ))
+    password: (( vault "secret/bosh-lites/lite49/users/admin:password" ))
+    cacert:   (( vault "secret/bosh-lites/lite49/certs:rootCA.pem" ))
+    cf:
+      deployment_name: cf
+      system_domain: (( vault "secret/bosh-lites/lite49/cf:system_domain" ))
+
+  manifest:
+    operator_file_paths: manifests/operators/routing.yml
+    vars: (( concat
+      "\nrouting-nats-deployment=" meta.bosh-lite.cf.deployment_name
+      "\nlocker-uri=locker-testflight." meta.bosh-lite.cf.system_domain ))
+    vars-pr: (( concat
+      "\nrouting-nats-deployment=" meta.bosh-lite.cf.deployment_name
+      "\nlocker-uri=locker-testflight-pr." meta.bosh-lite.cf.system_domain ))
+
   aws:
     bucket: locker-boshrelease-pipeline # re-use old ci bucket after boshrelease rename
     access_key: (( vault "secret/aws/cfcommunity:access" ))
     secret_key: (( vault "secret/aws/cfcommunity:secret" ))
+
   github:
     owner: cloudfoundry-community
     repo:  locker-boshrelease
-    private_key:  (( vault "secret/pipelines/locker-boshrelease/github:private" ))
-    access_token: (( vault "secret/pipelines/locker-boshrelease/github:token" ))
-  bosh-lite:
-    target: https://10.58.111.46:25555
-    deployment: locker-warden
+    branch: bosh2-ci
+    private_key:  (( vault "secret/pipelines/shared/github:private_key" ))
+    access_token: (( vault "secret/pipelines/shared/github:access_token" ))
+
   slack:
     webhook: (( vault "secret/pipelines/locker-boshrelease/slack:webhook" ))
-    channel: "#botspam"
+    channel:  "#locker"
+    username: starkandwayne-ci
+    icon:     https://www.starkandwayne.com/assets/images/shield-blue-50x50.png
