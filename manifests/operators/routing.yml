@@ -20,13 +20,13 @@
           - ((locker-uri))
 
 - type: remove
-  path: /instance_groups/name=locker/networks/name=default/static_ips
+  path: /instance_groups/name=locker/networks/name=default/static_ips?
 
 - type: remove
-  path: /instance_groups/name=locker/jobs/name=locker/properties/locker/ssl_cert
+  path: /instance_groups/name=locker/jobs/name=locker/properties/locker/ssl_cert?
 
 - type: remove
-  path: /instance_groups/name=locker/jobs/name=locker/properties/locker/ssl_key
+  path: /instance_groups/name=locker/jobs/name=locker/properties/locker/ssl_key?
 
 - type: remove
   path: /variables/name=locker-ca
