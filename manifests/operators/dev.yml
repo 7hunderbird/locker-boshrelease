@@ -1,0 +1,6 @@
+---
+- type: replace
+  path: /releases/name=locker
+  value:
+    name: locker
+    version: latest
